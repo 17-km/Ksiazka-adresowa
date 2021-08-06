@@ -10,63 +10,63 @@ struct Kontakt
     string imie, nazwisko, numer, email, adres;
 };
 
-int pobierzKontaktyZPliku(Kontakt kontakty[], int iloscKontaktow)
+int pobierzKontaktyZplikZKontaktamiu(Kontakt kontakty[], int iloscKontaktow)
 {
     int id;
     string imie, nazwisko, numer, email, adres;
 
-    fstream plik;
-    string linia;
-    int licznik = 1;
+    fstream plikZKontaktami;
+    string oczyttanaLiniaTekstu;
+    int numerOdczytywanejLinii = 1;
 
-    plik.open("kontakty.txt",ios::in);
+    plikZKontaktami.open("kontakty.txt",ios::in);
 
-    if(plik.good()==false)
+    if(plikZKontaktami.good()==false)
     {
         return 0;
     }
     else
     {
-        while(getline(plik,linia))
+        while(getline(plikZKontaktami,oczyttanaLiniaTekstu))
         {
-            switch (licznik)
+            switch (numerOdczytywanejLinii)
             {
             case 1:
             {
-                kontakty[iloscKontaktow].id = atoi(linia.c_str());
+                kontakty[iloscKontaktow].id = atoi(oczyttanaLiniaTekstu.c_str());
                 break;
             }
             case 2:
             {
-                kontakty[iloscKontaktow].imie = linia;
+                kontakty[iloscKontaktow].imie = oczyttanaLiniaTekstu;
                 break;
             }
             case 3:
             {
-                kontakty[iloscKontaktow].nazwisko = linia;
+                kontakty[iloscKontaktow].nazwisko = oczyttanaLiniaTekstu;
                 break;
             }
             case 4:
             {
-                kontakty[iloscKontaktow].numer = linia;
+                kontakty[iloscKontaktow].numer = oczyttanaLiniaTekstu;
                 break;
             }
             case 5:
             {
-                kontakty[iloscKontaktow].email = linia;
+                kontakty[iloscKontaktow].email = oczyttanaLiniaTekstu;
                 break;
             }
             case 6:
             {
-                kontakty[iloscKontaktow].adres = linia;
+                kontakty[iloscKontaktow].adres = oczyttanaLiniaTekstu;
                 iloscKontaktow++;
-                licznik = 0;
+                numerOdczytywanejLinii = 0;
                 break;
             }
             }
-            licznik++;
+            numerOdczytywanejLinii++;
         }
-        plik.close();
+        plikZKontaktami.close();
         return iloscKontaktow;
     }
 }
@@ -96,16 +96,16 @@ int dodajKontakt(Kontakt kontakty[], int iloscKontaktow)
     kontakty[iloscKontaktow].email = email;
     kontakty[iloscKontaktow].adres = adres;
 
-    fstream plik;
+    fstream plikZKontaktami;
 
-    plik.open("kontakty.txt",ios::out | ios::app);
-    plik << iloscKontaktow + 1 << endl;
-    plik << imie << endl;
-    plik << nazwisko << endl;
-    plik << numer << endl;
-    plik << email << endl;
-    plik << adres << endl;
-    plik.close();
+    plikZKontaktami.open("kontakty.txt",ios::out | ios::app);
+    plikZKontaktami << iloscKontaktow + 1 << endl;
+    plikZKontaktami << imie << endl;
+    plikZKontaktami << nazwisko << endl;
+    plikZKontaktami << numer << endl;
+    plikZKontaktami << email << endl;
+    plikZKontaktami << adres << endl;
+    plikZKontaktami.close();
 
     cout << endl << "Kontakt dodany" << endl;
     Sleep(1500);
@@ -122,7 +122,7 @@ void wyswietlKontakt(Kontakt kontakty[], int numerKontaktu)
     cout << "adres: " << kontakty[numerKontaktu].adres << endl << endl;
 }
 
-void wyswietlWszystkieKontakt(Kontakt kontakty[], int iloscKontaktow)
+void wyswietlWszystkieKontakty(Kontakt kontakty[], int iloscKontaktow)
 {
     system("cls");
     cout << "Wszystkie dostepne kontakty:" << endl << endl;
@@ -139,16 +139,16 @@ void wyswietlKontaktOPodanymImieniu(Kontakt kontakty[], int iloscKontaktow, stri
 {
     system("cls");
     cout << "Wszystkie kontakty o imieniu " << szukaneImie << " :" << endl << endl;
-    int licznik = 0;
+    int numerOdczytywanejLinii = 0;
     for (int i = 0; i < iloscKontaktow; i++)
     {
         if (kontakty[i].imie == szukaneImie)
         {
             wyswietlKontakt(kontakty,i);
-            licznik++;
+            numerOdczytywanejLinii++;
         }
     }
-    if (licznik == 0)
+    if (numerOdczytywanejLinii == 0)
     {
         cout << "brak kontaktow o podanym imieniu" << endl << endl;
     }
@@ -161,16 +161,16 @@ void wyswietlKontaktOPodanymNazwisku(Kontakt kontakty[], int iloscKontaktow, str
 {
     system("cls");
     cout << "Wszystkie kontakty o nazwisku " << szukaneNazwisko << " :" << endl << endl;
-    int licznik = 0;
+    int numerOdczytywanejLinii = 0;
     for (int i = 0; i < iloscKontaktow; i++)
     {
         if (kontakty[i].nazwisko == szukaneNazwisko)
         {
             wyswietlKontakt(kontakty,i);
-            licznik++;
+            numerOdczytywanejLinii++;
         }
     }
-    if (licznik == 0)
+    if (numerOdczytywanejLinii == 0)
     {
         cout << "brak kontaktow o podanym nazwisku" << endl << endl;
     }
@@ -186,7 +186,7 @@ int main()
     string szukaneImie;
     string szukaneNazwisko;
 
-    iloscKontaktow = pobierzKontaktyZPliku(kontakty,iloscKontaktow);
+    iloscKontaktow = pobierzKontaktyZplikZKontaktamiu(kontakty,iloscKontaktow);
 
     char wybor;
 
@@ -255,7 +255,7 @@ int main()
         }
         case '4':
         {
-            wyswietlWszystkieKontakt(kontakty,iloscKontaktow);
+            wyswietlWszystkieKontakty(kontakty,iloscKontaktow);
             break;
         }
         case '5':
