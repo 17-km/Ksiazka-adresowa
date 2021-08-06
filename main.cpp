@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <windows.h>
+#include <vector>
 
 using namespace std;
 
@@ -10,13 +11,11 @@ struct Kontakt
     string imie, nazwisko, numer, email, adres;
 };
 
-int pobierzKontaktyZplikZKontaktamiu(Kontakt kontakty[], int iloscKontaktow)
+int pobierzKontaktyZplikZKontaktamiu(vector<Kontakt> &kontakty, int iloscKontaktow)
 {
-    int id;
-    string imie, nazwisko, numer, email, adres;
-
+    Kontakt odczytywanyKontakt;
     fstream plikZKontaktami;
-    string oczyttanaLiniaTekstu;
+    string odczytanaLiniaTekstu;
     int numerOdczytywanejLinii = 1;
 
     plikZKontaktami.open("kontakty.txt",ios::in);
@@ -27,39 +26,40 @@ int pobierzKontaktyZplikZKontaktamiu(Kontakt kontakty[], int iloscKontaktow)
     }
     else
     {
-        while(getline(plikZKontaktami,oczyttanaLiniaTekstu))
+        while(getline(plikZKontaktami,odczytanaLiniaTekstu,'|'))
         {
             switch (numerOdczytywanejLinii)
             {
             case 1:
             {
-                kontakty[iloscKontaktow].id = atoi(oczyttanaLiniaTekstu.c_str());
+                odczytywanyKontakt.id = atoi(odczytanaLiniaTekstu.c_str());
                 break;
             }
             case 2:
             {
-                kontakty[iloscKontaktow].imie = oczyttanaLiniaTekstu;
+                odczytywanyKontakt.imie = odczytanaLiniaTekstu;
                 break;
             }
             case 3:
             {
-                kontakty[iloscKontaktow].nazwisko = oczyttanaLiniaTekstu;
+                odczytywanyKontakt.nazwisko = odczytanaLiniaTekstu;
                 break;
             }
             case 4:
             {
-                kontakty[iloscKontaktow].numer = oczyttanaLiniaTekstu;
+                odczytywanyKontakt.numer = odczytanaLiniaTekstu;
                 break;
             }
             case 5:
             {
-                kontakty[iloscKontaktow].email = oczyttanaLiniaTekstu;
+                odczytywanyKontakt.email = odczytanaLiniaTekstu;
                 break;
             }
             case 6:
             {
-                kontakty[iloscKontaktow].adres = oczyttanaLiniaTekstu;
+                odczytywanyKontakt.adres = odczytanaLiniaTekstu;
                 iloscKontaktow++;
+                kontakty.push_back(odczytywanyKontakt);
                 numerOdczytywanejLinii = 0;
                 break;
             }
@@ -71,9 +71,9 @@ int pobierzKontaktyZplikZKontaktamiu(Kontakt kontakty[], int iloscKontaktow)
     }
 }
 
-
-int dodajKontakt(Kontakt kontakty[], int iloscKontaktow)
+int dodajKontakt(vector<Kontakt> &kontakty, int iloscKontaktow)
 {
+    Kontakt dodawanyKontakt;
     string imie, nazwisko, numer, email, adres;
     system("cls");
     cout << "Dodawanie kontaktu" << endl << endl;
@@ -89,22 +89,30 @@ int dodajKontakt(Kontakt kontakty[], int iloscKontaktow)
     cout << "Podaj adres zamieszkania: ";
     getline(cin,adres);
 
-    kontakty[iloscKontaktow].id = iloscKontaktow + 1;
-    kontakty[iloscKontaktow].imie = imie;
-    kontakty[iloscKontaktow].nazwisko = nazwisko;
-    kontakty[iloscKontaktow].numer = numer;
-    kontakty[iloscKontaktow].email = email;
-    kontakty[iloscKontaktow].adres = adres;
+    int najwiekszaWartoscID;
+    if (iloscKontaktow == 0)
+        najwiekszaWartoscID = 0;
+    else
+        najwiekszaWartoscID = kontakty[iloscKontaktow - 1].id;
+
+    dodawanyKontakt.id = najwiekszaWartoscID + 1;
+    dodawanyKontakt.imie = imie;
+    dodawanyKontakt.nazwisko = nazwisko;
+    dodawanyKontakt.numer = numer;
+    dodawanyKontakt.email = email;
+    dodawanyKontakt.adres = adres;
+
+    kontakty.push_back(dodawanyKontakt);
 
     fstream plikZKontaktami;
 
     plikZKontaktami.open("kontakty.txt",ios::out | ios::app);
-    plikZKontaktami << iloscKontaktow + 1 << endl;
-    plikZKontaktami << imie << endl;
-    plikZKontaktami << nazwisko << endl;
-    plikZKontaktami << numer << endl;
-    plikZKontaktami << email << endl;
-    plikZKontaktami << adres << endl;
+    plikZKontaktami << dodawanyKontakt.id << "|";
+    plikZKontaktami << dodawanyKontakt.imie << "|";
+    plikZKontaktami << dodawanyKontakt.nazwisko << "|";
+    plikZKontaktami << dodawanyKontakt.numer << "|";
+    plikZKontaktami << dodawanyKontakt.email << "|";
+    plikZKontaktami << dodawanyKontakt.adres << "|" << endl;
     plikZKontaktami.close();
 
     cout << endl << "Kontakt dodany" << endl;
@@ -112,7 +120,7 @@ int dodajKontakt(Kontakt kontakty[], int iloscKontaktow)
     return iloscKontaktow + 1;
 }
 
-void wyswietlKontakt(Kontakt kontakty[], int numerKontaktu)
+void wyswietlKontakt(vector<Kontakt> &kontakty, int numerKontaktu)
 {
     cout << "id: " << kontakty[numerKontaktu].id << endl;
     cout << "imie: " << kontakty[numerKontaktu].imie << endl;
@@ -122,7 +130,7 @@ void wyswietlKontakt(Kontakt kontakty[], int numerKontaktu)
     cout << "adres: " << kontakty[numerKontaktu].adres << endl << endl;
 }
 
-void wyswietlWszystkieKontakty(Kontakt kontakty[], int iloscKontaktow)
+void wyswietlWszystkieKontakty(vector<Kontakt> &kontakty, int iloscKontaktow)
 {
     system("cls");
     cout << "Wszystkie dostepne kontakty:" << endl << endl;
@@ -135,20 +143,20 @@ void wyswietlWszystkieKontakty(Kontakt kontakty[], int iloscKontaktow)
     getchar();
 }
 
-void wyswietlKontaktOPodanymImieniu(Kontakt kontakty[], int iloscKontaktow, string szukaneImie)
+void wyswietlKontaktOPodanymImieniu(vector<Kontakt> &kontakty, int iloscKontaktow, string szukaneImie)
 {
     system("cls");
     cout << "Wszystkie kontakty o imieniu " << szukaneImie << " :" << endl << endl;
-    int numerOdczytywanejLinii = 0;
+    int liczbaZnalezionychKontaktow = 0;
     for (int i = 0; i < iloscKontaktow; i++)
     {
         if (kontakty[i].imie == szukaneImie)
         {
             wyswietlKontakt(kontakty,i);
-            numerOdczytywanejLinii++;
+            liczbaZnalezionychKontaktow++;
         }
     }
-    if (numerOdczytywanejLinii == 0)
+    if (liczbaZnalezionychKontaktow == 0)
     {
         cout << "brak kontaktow o podanym imieniu" << endl << endl;
     }
@@ -157,20 +165,20 @@ void wyswietlKontaktOPodanymImieniu(Kontakt kontakty[], int iloscKontaktow, stri
     getchar();
 }
 
-void wyswietlKontaktOPodanymNazwisku(Kontakt kontakty[], int iloscKontaktow, string szukaneNazwisko)
+void wyswietlKontaktOPodanymNazwisku(vector<Kontakt> &kontakty, int iloscKontaktow, string szukaneNazwisko)
 {
     system("cls");
     cout << "Wszystkie kontakty o nazwisku " << szukaneNazwisko << " :" << endl << endl;
-    int numerOdczytywanejLinii = 0;
+    int liczbaZnalezionychKontaktow = 0;
     for (int i = 0; i < iloscKontaktow; i++)
     {
         if (kontakty[i].nazwisko == szukaneNazwisko)
         {
             wyswietlKontakt(kontakty,i);
-            numerOdczytywanejLinii++;
+            liczbaZnalezionychKontaktow++;
         }
     }
-    if (numerOdczytywanejLinii == 0)
+    if (liczbaZnalezionychKontaktow == 0)
     {
         cout << "brak kontaktow o podanym nazwisku" << endl << endl;
     }
@@ -179,23 +187,197 @@ void wyswietlKontaktOPodanymNazwisku(Kontakt kontakty[], int iloscKontaktow, str
     getchar();
 }
 
+int wyswietlKontaktOPodanymID(vector<Kontakt> &kontakty, int iloscKontaktow, int szukaneID)
+{
+    system("cls");
+    cout << "Kontakt o ID " << szukaneID << " :" << endl << endl;
+    int  numerIndeksuSzukanejPozycji = -1;
+    for (int i = 0; i < iloscKontaktow; i++)
+    {
+        if (kontakty[i].id == szukaneID)
+        {
+            wyswietlKontakt(kontakty,i);
+            numerIndeksuSzukanejPozycji = i;
+            break;
+        }
+    }
+    if (numerIndeksuSzukanejPozycji < 0)
+    {
+        cout << "brak kontaktow o podanym ID" << endl << endl;
+    }
+    return numerIndeksuSzukanejPozycji;
+}
+
+void aktualizujPlikZKontaktami(vector<Kontakt> &kontakty, int iloscKontaktow)
+{
+    system("cls");
+    cout << "Aktualizowanie danych...";
+    Sleep(1500);
+    fstream plikZKontaktami;
+    plikZKontaktami.open("kontakty.txt",ios::out);
+
+    for(int i = 0; i < iloscKontaktow; i++)
+    {
+        plikZKontaktami << kontakty[i].id << "|";
+        plikZKontaktami << kontakty[i].imie << "|";
+        plikZKontaktami << kontakty[i].nazwisko << "|";
+        plikZKontaktami << kontakty[i].numer << "|";
+        plikZKontaktami << kontakty[i].email << "|";
+        plikZKontaktami << kontakty[i].adres << "|" << endl;
+    }
+}
+
+int usunKontakt(vector<Kontakt> &kontakty, int iloscKontaktow, int szukaneID)
+{
+    int numerIndeksuPozycjiDoUsuniecia;
+    numerIndeksuPozycjiDoUsuniecia = wyswietlKontaktOPodanymID(kontakty,iloscKontaktow,szukaneID);
+
+    if (numerIndeksuPozycjiDoUsuniecia >= 0)
+    {
+        cout << "Czy na pewno usunac kontakt o ID " << szukaneID << " ?" << endl;
+        cout << "Aby potwierdzic nacisnij 't'" << endl;
+        char decyzja;
+        cin >> decyzja;
+
+        if (decyzja == 't')
+        {
+            kontakty.erase(kontakty.begin() + numerIndeksuPozycjiDoUsuniecia);
+            iloscKontaktow --;
+            aktualizujPlikZKontaktami(kontakty,iloscKontaktow);
+            system("cls");
+            cout << "Kontakt usuniety" << endl;
+        }
+        else
+        {
+            system("cls");
+            cout << "Usuwanie anulowane" << endl;
+        }
+    }
+    Sleep(1500);
+    return iloscKontaktow;
+}
+
+void edytujKontakt(vector<Kontakt> &kontakty, int iloscKontaktow, int szukaneID)
+{
+    int numerIndeksuPozycjiDoEdycji;
+    numerIndeksuPozycjiDoEdycji = wyswietlKontaktOPodanymID(kontakty,iloscKontaktow,szukaneID);
+
+    if (numerIndeksuPozycjiDoEdycji >= 0)
+    {
+        cout << "1 - imie" << endl;
+        cout << "2 - nazwisko" << endl;
+        cout << "3 - numer telefonu " << endl;
+        cout << "4 - email" << endl;
+        cout << "5 - adres" << endl;
+        cout << "6 - powrot do menu" << endl;
+
+        char wybor;
+        string wprowadzoneDane;
+
+        cin >> wybor;
+
+        system("cls");
+
+        switch(wybor)
+        {
+        case '1':
+        {
+            cout << "Obecne imie: " << kontakty[numerIndeksuPozycjiDoEdycji].imie << endl;
+            cout << "Podaj nowe imie: ";
+            cin.sync();
+            getline(cin,wprowadzoneDane);
+            kontakty[numerIndeksuPozycjiDoEdycji].imie = wprowadzoneDane;
+            aktualizujPlikZKontaktami(kontakty,iloscKontaktow);
+            break;
+        }
+        case '2':
+        {
+            cout << "Obecne nazwisko: " << kontakty[numerIndeksuPozycjiDoEdycji].nazwisko << endl;
+            cout << "Podaj nowe nazwisko: ";
+            cin.sync();
+            getline(cin,wprowadzoneDane);
+            kontakty[numerIndeksuPozycjiDoEdycji].nazwisko = wprowadzoneDane;
+            aktualizujPlikZKontaktami(kontakty,iloscKontaktow);
+            break;
+        }
+        case '3':
+        {
+            cout << "Obecny numer: " << kontakty[numerIndeksuPozycjiDoEdycji].numer << endl;
+            cout << "Podaj nowy numer: ";
+            cin.sync();
+            getline(cin,wprowadzoneDane);
+            kontakty[numerIndeksuPozycjiDoEdycji].numer = wprowadzoneDane;
+            aktualizujPlikZKontaktami(kontakty,iloscKontaktow);
+            break;
+        }
+        case '4':
+        {
+            cout << "Obecny numer: " << kontakty[numerIndeksuPozycjiDoEdycji].email << endl;
+            cout << "Podaj nowy email: ";
+            cin.sync();
+            getline(cin,wprowadzoneDane);
+            kontakty[numerIndeksuPozycjiDoEdycji].email = wprowadzoneDane;
+            aktualizujPlikZKontaktami(kontakty,iloscKontaktow);
+            break;
+        }
+        case '5':
+        {
+            cout << "Obecny numer: " << kontakty[numerIndeksuPozycjiDoEdycji].adres << endl;
+            cout << "Podaj nowy adres: ";
+            cin.sync();
+            getline(cin,wprowadzoneDane);
+            kontakty[numerIndeksuPozycjiDoEdycji].adres = wprowadzoneDane;
+            aktualizujPlikZKontaktami(kontakty,iloscKontaktow);
+            break;
+        }
+        case '6':
+        {
+            cout << "Edycja anulowana";
+            break;
+        }
+        }
+        Sleep(1500);
+    }
+}
+
+bool czySaJakiesKontakty(int iloscKontaktow)
+{
+    if (iloscKontaktow == 0)
+    {
+        system("cls");
+        cout << "Brak kontaktow";
+        Sleep(1500);
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
 int main()
 {
-    Kontakt kontakty[1000];
+    vector<Kontakt> kontakty;
     int iloscKontaktow = 0;
+
     string szukaneImie;
     string szukaneNazwisko;
+    int szukaneID;
 
     iloscKontaktow = pobierzKontaktyZplikZKontaktamiu(kontakty,iloscKontaktow);
 
     char wybor;
 
-    while (iloscKontaktow == 0)
+    while (true)
     {
         system("cls");
-        cout << "***brak kontaktow***" << endl << endl;
-        cout << "1. Dodaj kontakt" << endl;
-        cout << "2. Zakoncz program" << endl;
+        cout << "1. Dodaj adresata" << endl;
+        cout << "2. Wyszukaj po imieniu" << endl;
+        cout << "3. Wyszukaj po nazwisku" << endl;
+        cout << "4. Wyswietl wszystkich adresatow" << endl;
+        cout << "5. Usun adresata" << endl;
+        cout << "6. Edytuj adresata" << endl;
+        cout << "9. Zakoncz program" << endl;
 
         cin >> wybor;
 
@@ -208,57 +390,57 @@ int main()
         }
         case '2':
         {
-            exit(0);
-        }
-        default:
-        {
-            cout << endl << "Wybrano niepoprawna opcje. Prosze wybrac dostepny numer." << endl;
-            Sleep(1500);
-            break;
-        }
-        }
-    }
-
-    while (iloscKontaktow > 0)
-    {
-        system("cls");
-        cout << "1. Dodaj kontakt" << endl;
-        cout << "2. Wyszukaj kontakt po imieniu" << endl;
-        cout << "3. Wyszukaj kontakt po nazwisku" << endl;
-        cout << "4. Pokaz wszystkie kontakty" << endl;
-        cout << "5. Zakoncz program" << endl;
-
-        cin >> wybor;
-
-        switch(wybor)
-        {
-        case '1':
-        {
-            iloscKontaktow = dodajKontakt(kontakty,iloscKontaktow);
-            break;
-        }
-        case '2':
-        {
-            system("cls");
-            cout << "Wyszykiwanie" << endl << endl << "Podaj imie: " << endl;
-            cin >> szukaneImie;
-            wyswietlKontaktOPodanymImieniu(kontakty,iloscKontaktow,szukaneImie);
+            if (czySaJakiesKontakty(iloscKontaktow))
+            {
+                system("cls");
+                cout << "Wyszykiwanie" << endl << endl << "Podaj imie: " << endl;
+                cin >> szukaneImie;
+                wyswietlKontaktOPodanymImieniu(kontakty,iloscKontaktow,szukaneImie);
+            }
             break;
         }
         case '3':
         {
-            system("cls");
-            cout << "Wyszykiwanie" << endl << endl << "Podaj nazwisko: " << endl;
-            cin >> szukaneNazwisko;
-            wyswietlKontaktOPodanymNazwisku(kontakty,iloscKontaktow,szukaneNazwisko);
+            if (czySaJakiesKontakty(iloscKontaktow))
+            {
+                system("cls");
+                cout << "Wyszykiwanie" << endl << endl << "Podaj nazwisko: " << endl;
+                cin >> szukaneNazwisko;
+                wyswietlKontaktOPodanymNazwisku(kontakty,iloscKontaktow,szukaneNazwisko);
+            }
             break;
         }
         case '4':
         {
-            wyswietlWszystkieKontakty(kontakty,iloscKontaktow);
+            if (czySaJakiesKontakty(iloscKontaktow))
+            {
+                wyswietlWszystkieKontakty(kontakty,iloscKontaktow);
+            }
             break;
         }
         case '5':
+        {
+            if (czySaJakiesKontakty(iloscKontaktow))
+            {
+                system("cls");
+                cout << "Usuwanie kontaktu" << endl << endl << "Podaj ID kontaktu do usuniecia: " << endl;
+                cin >> szukaneID;
+                iloscKontaktow = usunKontakt(kontakty,iloscKontaktow,szukaneID);
+            }
+            break;
+        }
+        case '6':
+        {
+            if (czySaJakiesKontakty(iloscKontaktow))
+            {
+                system("cls");
+                cout << "Edycja kontaktu" << endl << endl << "Podaj ID kontaktu do edycji: " << endl;
+                cin >> szukaneID;
+                edytujKontakt(kontakty,iloscKontaktow,szukaneID);
+            }
+            break;
+        }
+        case '9':
         {
             exit(0);
         }
