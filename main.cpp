@@ -252,7 +252,7 @@ int pobierzKontaktyZPlikuZKontaktami(vector<Kontakt> &kontakty, int iloscKontakt
     }
 }
 
-int dodajKontakt(vector<Kontakt> &kontakty, int iloscKontaktow, int idZalogowanegoUzytkownika, int maksymalneIDAdresata)
+int dodajKontakt(vector<Kontakt> &kontakty, int iloscKontaktow, int idZalogowanegoUzytkownika, int &maksymalneIDAdresata)
 {
     Kontakt dodawanyKontakt;
     string imie, nazwisko, numer, email, adres;
@@ -276,6 +276,8 @@ int dodajKontakt(vector<Kontakt> &kontakty, int iloscKontaktow, int idZalogowane
     dodawanyKontakt.numer = numer;
     dodawanyKontakt.email = email;
     dodawanyKontakt.adres = adres;
+
+    maksymalneIDAdresata++;
 
     kontakty.push_back(dodawanyKontakt);
 
