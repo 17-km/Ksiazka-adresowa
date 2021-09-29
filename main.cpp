@@ -6,10 +6,52 @@
 
 using namespace std;
 
-struct Uzytkownik
+class Uzytkownik
 {
+public:
     int id;
     string nazwa, haslo;
+
+    void dodaj(string podanaNazwa, int podaneID)
+    {
+        id = podaneID;
+        nazwa = podanaNazwa;
+        cout << "Podaj haslo: ";
+        cin >> haslo;
+
+        fstream plikZUzytkownikami;
+
+        plikZUzytkownikami.open("uzytkownicy.txt",ios::out | ios::app);
+        plikZUzytkownikami << id << "|";
+        plikZUzytkownikami << nazwa << "|";
+        plikZUzytkownikami << haslo << "|" << endl;
+        plikZUzytkownikami.close();
+
+        cout << "Konto zalozone" << endl;
+        Sleep(1000);
+    }
+
+    int sprawdz(string podanaNazwa)
+    {
+        if (nazwa == podanaNazwa)
+        {
+            string podaneHaslo;
+            for (int proby = 0; proby < 3; proby++)
+            {
+                cout << "Podaj haslo (pozostalo prob: " << 3 - proby <<"): ";
+                cin >> podaneHaslo;
+                if (haslo == podaneHaslo)
+                {
+                    cout << "Zalogowales sie" << endl;
+                    Sleep(1000);
+                    return id;
+                }
+            }
+            cout << "Podales 3 razy bledne haslo. Poczekaj 3 sekundy przed kolejna proba" << endl;
+            Sleep(3000);
+            return 0;
+        }
+    }
 };
 
 struct Kontakt
@@ -66,7 +108,7 @@ int pobierzUzytkownikowZPlikuZUzytkownikami(vector<Uzytkownik> &uzytkownicy, int
 int rejestracja(vector<Uzytkownik> &uzytkownicy, int iloscUzytkownikow)
 {
     Uzytkownik dodawanyUzytkownik;
-    string nazwa, haslo;
+    string nazwa;
 
     system("cls");
     cout << "Rejestracja" << endl << endl;
@@ -87,30 +129,17 @@ int rejestracja(vector<Uzytkownik> &uzytkownicy, int iloscUzytkownikow)
             i++;
         }
     }
-    cout << "Podaj haslo: ";
-    cin >> haslo;
-    dodawanyUzytkownik.nazwa = nazwa;
-    dodawanyUzytkownik.haslo = haslo;
-    dodawanyUzytkownik.id = iloscUzytkownikow + 1;
+
+    dodawanyUzytkownik.dodaj(nazwa, iloscUzytkownikow + 1);
 
     uzytkownicy.push_back(dodawanyUzytkownik);
 
-    fstream plikZUzytkownikami;
-
-    plikZUzytkownikami.open("uzytkownicy.txt",ios::out | ios::app);
-    plikZUzytkownikami << dodawanyUzytkownik.id << "|";
-    plikZUzytkownikami << dodawanyUzytkownik.nazwa << "|";
-    plikZUzytkownikami << dodawanyUzytkownik.haslo << "|" << endl;
-    plikZUzytkownikami.close();
-
-    cout << "Konto zalozone" << endl;
-    Sleep(1000);
     return iloscUzytkownikow + 1;
 }
 
 int logowanie(vector<Uzytkownik> &uzytkownicy, int iloscUzytkownikow)
 {
-    string nazwa, haslo;
+    string nazwa;
 
     system("cls");
     cout << "Logowanie" << endl << endl;
@@ -120,22 +149,9 @@ int logowanie(vector<Uzytkownik> &uzytkownicy, int iloscUzytkownikow)
     int i = 0;
     while (i < iloscUzytkownikow)
     {
-        if (uzytkownicy[i].nazwa == nazwa)
+        if (uzytkownicy[i].sprawdz(nazwa))
         {
-            for (int proby = 0; proby < 3; proby++)
-            {
-                cout << "Podaj haslo (pozostalo prob: " << 3 - proby <<"): ";
-                cin >> haslo;
-                if (uzytkownicy[i].haslo == haslo)
-                {
-                    cout << "Zalogowales sie" << endl;
-                    Sleep(1000);
-                    return uzytkownicy[i].id;
-                }
-            }
-            cout << "Podales 3 razy bledne haslo. Poczekaj 3 sekundy przed kolejna proba" << endl;
-            Sleep(3000);
-            return 0;
+            return uzytkownicy[i].id;
         }
         i++;
     }
@@ -561,10 +577,10 @@ int main()
 {
     vector<Uzytkownik> uzytkownicy;
     int idZalogowanegoUzytkownika = 0;
-    int iloscUzytkownikow = 0;
 
     vector<Kontakt> kontakty;
     int iloscKontaktow = 0;
+    int iloscUzytkownikow = 0;
 
     string szukaneImie;
     string szukaneNazwisko;
@@ -596,7 +612,12 @@ int main()
             }
             case '2':
             {
-                idZalogowanegoUzytkownika = logowanie(uzytkownicy,iloscUzytkownikow);
+                for(int i = 0; i < iloscUzytkownikow; i++)
+                {
+                    idZalogowanegoUzytkownika = logowanie(uzytkownicy,iloscUzytkownikow);
+                    if (idZalogowanegoUzytkownika > 0) break;
+                }
+
                 if (idZalogowanegoUzytkownika != 0)
                 {
                     iloscKontaktow = pobierzKontaktyZPlikuZKontaktami(kontakty,iloscKontaktow,idZalogowanegoUzytkownika,maksymalneIDAdresata);
@@ -713,4 +734,3 @@ int main()
 
     return 0;
 }
-
